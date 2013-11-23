@@ -11,6 +11,18 @@ import commons.Utils.Predicate;
 
 public class Herbivore extends AbstractCreature {
 	
+	/** life of the herbivore **/
+	protected double life ;
+	
+	/** consequences of hungry on life **/
+	protected double hungry = 1 ;
+	
+	/** amount of seed collected while eating **/
+	protected double harvest = 1 ;
+	
+	/** amount of chance in percentage to give birth while eating (0 to 100) **/
+	protected int birth = 10 ;
+	
 	static class CreaturesAroundCreature implements Predicate<ICreature> {
 		private final Herbivore observer;
 

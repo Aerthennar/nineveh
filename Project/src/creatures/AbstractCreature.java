@@ -54,17 +54,7 @@ public abstract class AbstractCreature implements ICreature {
 	/** number of seeds carried **/
 	protected int seeds ;
 	
-	/** life of the herbivore **/
-	protected double life ;
-	
-	/** consequences of hungry on life **/
-	protected double hungry = 1 ;
-	
-	/** amount of seed collected while eating **/
-	protected double harvest = 1 ;
-	
-	/** amount of chance in percentage to give birth while eating (0 to 100) **/
-	protected int birth = 10 ;
+
 	
 //	/** area around creature where we check how many other creatures are present **/
 //	static protected double lifeZone ;

@@ -78,8 +78,8 @@ public class Launcher extends JFrame {
 							simulator.stop();
 						}
 					}
-					simulator.clearCreatures();
-					Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
+					//simulator.clearCreatures();
+					Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 1, new ColorCube(50),currentConstructor);
 					simulator.addAllCreatures(creatures);
 					simulator.start();
 				}

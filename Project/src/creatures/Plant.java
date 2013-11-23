@@ -3,8 +3,10 @@ package creatures;
 import static commons.Utils.filter;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
+import static java.lang.Math.toDegrees;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
 import commons.Utils.Predicate;
@@ -13,7 +15,7 @@ public class Plant extends AbstractCreature{
 	
 	private static int MIN_SEED = 3;
 	private static int MAX_SEED = 10;
-	private int life = 10;
+	private int life = 100;
 	
 	public int TIME_DEGEN_LIFE;
 	
@@ -41,6 +43,9 @@ public class Plant extends AbstractCreature{
 
 	public void decreaseLife(int value){
 		life -= value;
+		if(life <= 0){
+			System.out.println("DIE");
+		}
 	}
 	
 	/*
@@ -80,5 +85,22 @@ public class Plant extends AbstractCreature{
 	//Return filtered plants list
 	public Iterable<ICreature> plantsAround(Plant plant) {
 		return filter(environment.getCreatures(), new PlantsAroundPlant(this));
+	}
+	
+	@Override
+	public void paint(Graphics2D g2) {
+		// center the point
+		g2.translate(position.getX(), position.getY());
+		// center the surrounding rectangle
+		g2.translate(-size / 2, -size / 2);
+		// center the arc
+		// rotate towards the direction of our vector
+
+		// useful for debugging
+		// g2.drawRect(0, 0, size, size);
+
+		// set the color
+		g2.setColor(color);
+		g2.fillOval(0, 0, life, life);
 	}
 }
