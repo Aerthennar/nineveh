@@ -9,7 +9,7 @@ import java.awt.geom.Point2D;
 
 import commons.Utils.Predicate;
 
-public class Plante extends AbstractCreature{
+public class Plant extends AbstractCreature{
 	
 	private static int MIN_SEED = 3;
 	private static int MAX_SEED = 10;
@@ -17,10 +17,10 @@ public class Plante extends AbstractCreature{
 	
 	public int TIME_DEGEN_LIFE;
 	
-	static class PlantesAroundPlante implements Predicate<ICreature> {
-		private final Plante observer;
+	static class PlantsAroundPlant implements Predicate<ICreature> {
+		private final Plant observer;
 
-		public PlantesAroundPlante(Plante observer) {
+		public PlantsAroundPlant(Plant observer) {
 			this.observer = observer;
 		}
 
@@ -33,13 +33,13 @@ public class Plante extends AbstractCreature{
 		}
 	}
 	
-	public Plante (IEnvironment environment, Point2D position, double speed, double direction, Color color) {
+	public Plant (IEnvironment environment, Point2D position, double speed, double direction, Color color) {
 		super(environment, position);
 		life = (int) (MIN_SEED + Math.random()*(MAX_SEED - MIN_SEED));
 		this.color = color;
 	}
 
-	public void looseLife(int value){
+	public void decreaseLife(int value){
 		life -= value;
 	}
 	
@@ -54,7 +54,7 @@ public class Plante extends AbstractCreature{
 	public void act() {
 
 		// iterate over all nearby plants
-		Iterable<ICreature> creatures = plantesAround(this);
+		Iterable<ICreature> creatures = plantsAround(this);
 		int count = 0;
 		for (ICreature c : creatures) {
 			if (this.distanceFromAPoint(c.getPosition()) <= this.visionDistance){
@@ -71,14 +71,14 @@ public class Plante extends AbstractCreature{
 			  setPosition(position.getX()+Math.random()-0.5, position.getY()+Math.random()-0.5);
 			  break;        
 		  default:
-			  //Loose life
-			  looseLife(TIME_DEGEN_LIFE);  
+			  //decrease life
+			  decreaseLife(TIME_DEGEN_LIFE);  
 			  break;
 		}
 	}
 	
-	//Retourne filtred plants list
-	public Iterable<ICreature> plantesAround(Plante plante) {
-		return filter(environment.getCreatures(), new PlantesAroundPlante(this));
+	//Return filtered plants list
+	public Iterable<ICreature> plantsAround(Plant plant) {
+		return filter(environment.getCreatures(), new PlantsAroundPlant(this));
 	}
 }

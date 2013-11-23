@@ -46,16 +46,16 @@ public abstract class AbstractCreature implements ICreature {
 	protected double direction;
 	
 	/** State eating plant or not **/
-	static protected boolean eating ;
+	protected boolean eating ;
 	
 	/** number max of neighbor allowed **/
-	static protected int maxNeighbor ;
+	protected int maxNeighbor ;
 	
 	/** number of seeds carried **/
-	static protected int seeds ;
+	protected int seeds ;
 	
 	/** life of the herbivore **/
-	static protected double life ;
+	protected double life ;
 	
 	/** consequences of hungry on life **/
 	protected double hungry = 1 ;
