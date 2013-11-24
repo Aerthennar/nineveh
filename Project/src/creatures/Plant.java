@@ -15,9 +15,9 @@ public class Plant extends AbstractCreature{
 	
 	private static int MIN_SEED = 3;
 	private static int MAX_SEED = 10;
-	private int life = 100;
+	private int life;
 	
-	public int TIME_DEGEN_LIFE;
+	public int TIME_DEGEN_LIFE = 1;
 	
 	static class PlantsAroundPlant implements Predicate<ICreature> {
 		private final Plant observer;
@@ -28,7 +28,7 @@ public class Plant extends AbstractCreature{
 
 		@Override
 		public boolean apply(ICreature input) {
-			if (input == observer) {
+			if (input == observer || !(input.getClass().isAssignableFrom(Plant.class))) {
 				return false;
 			}
 			return abs(observer.distanceFromAPoint(input.getPosition())) <= observer.visionDistance;
@@ -37,15 +37,17 @@ public class Plant extends AbstractCreature{
 	
 	public Plant (IEnvironment environment, Point2D position, double speed, double direction, Color color) {
 		super(environment, position);
-		life = (int) (MIN_SEED + Math.random()*(MAX_SEED - MIN_SEED));
-		this.color = color;
+	//	life = (int) (MIN_SEED + Math.random()*(MAX_SEED - MIN_SEED));
+		life = 100;
+		this.color = Color.green;
 	}
 
 	public void decreaseLife(int value){
 		life -= value;
-		if(life <= 0){
-			System.out.println("DIE");
-		}
+	}
+	
+	public int getLife(){
+		return this.life;
 	}
 	
 	/*
@@ -62,6 +64,7 @@ public class Plant extends AbstractCreature{
 		Iterable<ICreature> creatures = plantsAround(this);
 		int count = 0;
 		for (ICreature c : creatures) {
+			
 			if (this.distanceFromAPoint(c.getPosition()) <= this.visionDistance){
 				count++;
 			}
@@ -101,6 +104,6 @@ public class Plant extends AbstractCreature{
 
 		// set the color
 		g2.setColor(color);
-		g2.fillOval(0, 0, life, life);
+		g2.fillOval(-life, -life, life * 2, life * 2);
 	}
 }

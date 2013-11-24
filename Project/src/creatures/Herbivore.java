@@ -2,8 +2,10 @@ package creatures;
 
 import static commons.Utils.filter;
 import static java.lang.Math.abs;
+import static java.lang.Math.toDegrees;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
@@ -57,7 +59,7 @@ public class Herbivore extends AbstractCreature {
 		super(environment, position);
 		this.direction = direction;
 		this.speed = speed;
-		this.color = color;
+		this.color = Color.blue;
 		maxNeighbor = 10 ;
 		seeds = 0 ;
 		eating = false ;
@@ -85,10 +87,12 @@ public class Herbivore extends AbstractCreature {
 		Iterable<ICreature> creatures = creaturesAround(this);
 		int count = 0;
 		for (ICreature c : creatures) {
-			avgSpeed += c.getSpeed();
-			avgDir += c.getDirection();
-			minDist = Math.min(minDist, c.distanceFromAPoint(getPosition()));
-			count++;
+			if(c.getSpeed() > 0){
+				avgSpeed += c.getSpeed();
+				avgDir += c.getDirection();
+				minDist = Math.min(minDist, c.distanceFromAPoint(getPosition()));
+				count++;
+			}
 		}
 		
 		// average
@@ -116,15 +120,15 @@ public class Herbivore extends AbstractCreature {
 				incY = - speed * Math.sin(escapeDir);
 				move(incX, incY);
 			}else{
-				// we should not moved closer than a dist - MIN_DIST
+				// we should not move closer than dist - MIN_DIST
 				move(incX, incY);
 			}
 		}
 		
 		//TODO
-		/*
-		 * if (this.fieldOfView voit de la bouffe) eating = true ;
-		 */
+		
+		//if (this.fieldOfView) eating = true ;
+		
 		
 		if (eating == false) {
 			//amount of life lost when hungry
@@ -164,6 +168,27 @@ public class Herbivore extends AbstractCreature {
 	public Iterable<ICreature> creaturesAround(
 			Herbivore herbivore) {
 		return filter(environment.getCreatures(), new CreaturesAroundCreature(this));
+	}
+	
+	@Override
+	public void paint(Graphics2D g2) {
+		// center the point
+		g2.translate(position.getX(), position.getY());
+		// center the surrounding rectangle
+		g2.translate(-size / 2, -size / 2);
+		// center the arc
+		// rotate towards the direction of our vector
+		g2.rotate(-direction, size / 2, size / 2);
+
+		// useful for debugging
+		// g2.drawRect(0, 0, size, size);
+
+		// set the color
+		g2.setColor(color);
+		// we need to do PI - FOV since we want to mirror the arc
+		g2.fillArc(0, 0, size, size, (int) toDegrees(-fieldOfView / 2),
+				(int) toDegrees(fieldOfView));
+
 	}
 	
 }
