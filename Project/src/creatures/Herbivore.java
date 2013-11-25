@@ -13,6 +13,33 @@ import commons.Utils.Predicate;
 
 public class Herbivore extends AbstractCreature {
 	
+	/** State eating plant or not **/
+	protected boolean eating ;
+	
+	/** number max of neighbor allowed **/
+	protected int maxNeighbor ;
+	
+	/** number of seeds carried **/
+	protected int seeds ;
+	
+	/** boolean saying if the herbivore just start eating or not **/
+	protected boolean feeding ;
+	
+	/** time when a herbivore saw a plant **/
+	double time ;
+	
+	/** length of the eating time **/
+	double wait ;
+	
+	/** length of the time after eating where a herbivore cannot eat again **/
+	double digestTime ;
+	
+	/** boolean saying if a herbivore is feeded or not **/
+	boolean feeded ;
+	
+	/** probability for a herbivore to move out if there is too much people around him **/
+	double asocial ;
+	
 	/** life of the herbivore **/
 	protected double life ;
 	
@@ -25,10 +52,10 @@ public class Herbivore extends AbstractCreature {
 	/** amount of chance in percentage to give birth while eating (0 to 100) **/
 	protected int birth = 10 ;
 	
-	static class CreaturesAroundCreature implements Predicate<ICreature> {
+	static class HerbivoresAroundHerbivore implements Predicate<ICreature> {
 		private final Herbivore observer;
 
-		public CreaturesAroundCreature(Herbivore herbivore) {
+		public HerbivoresAroundHerbivore(Herbivore herbivore) {
 			this.observer = herbivore;
 		}
 
@@ -64,6 +91,12 @@ public class Herbivore extends AbstractCreature {
 		seeds = 0 ;
 		eating = false ;
 		life = 100 ;
+		feeding = false ;
+		time = 0 ;
+		wait = 5000 ;
+		digestTime = 5000 ;
+		feeded = false ;
+		asocial = 10 ;
 	}
 
 	public void act() {
@@ -79,9 +112,6 @@ public class Herbivore extends AbstractCreature {
 		double minDist = Double.MAX_VALUE;
 		
 		//double lifeZone = minDist * 10 ; //espace vital
-		
-		double time ; // heure au moment de l arret
-		double wait = 5000 ; // duree de l attente
 
 		// iterate over all nearby creatures
 		Iterable<ICreature> creatures = creaturesAround(this);
@@ -92,6 +122,15 @@ public class Herbivore extends AbstractCreature {
 				avgDir += c.getDirection();
 				minDist = Math.min(minDist, c.distanceFromAPoint(getPosition()));
 				count++;
+				
+				if (this.distanceFromAPoint(c.getPosition()) <= this.visionDistance
+						&& c.getClass() == Plant.class
+						&& (System.currentTimeMillis() > time + digestTime)
+						) {
+							//distanceFromAPoint(c.getPosition()
+					eating = true ;
+				}
+				
 			}
 		}
 		
@@ -114,30 +153,58 @@ public class Herbivore extends AbstractCreature {
 			double incX = speed * Math.cos(avgDir);
 			double incY = - speed * Math.sin(avgDir);
 			
+			//if there is too much people around
 			if (count > maxNeighbor) {
-				escapeDir = this.direction + Math.toRadians(120) ;
-				incX = speed * Math.cos(escapeDir);
-				incY = - speed * Math.sin(escapeDir);
-				move(incX, incY);
+				Random rand = new Random();
+				//if the creature don't life people, she moves out
+				if (rand.nextInt(100) <= asocial) {
+					escapeDir = this.direction + Math.toRadians(135) ;
+					incX = speed * Math.cos(escapeDir);
+					incY = - speed * Math.sin(escapeDir);
+					move(incX, incY);
+				}
 			}else{
 				// we should not move closer than dist - MIN_DIST
 				move(incX, incY);
 			}
 		}
 		
-		//TODO
 		
-		//if (this.fieldOfView) eating = true ;
-		
-		
-		if (eating == false) {
+		if (eating == true) {			
+			//if the herbivore just saw the plant and not actually start eating
+			if (feeding == false && eating == true) {
+				time = System.currentTimeMillis() ;
+				feeding = true ;
+				this.speed = 0 ;
+				seeds += harvest ;
+				//reduce plant life ?
+				
+				//probability to create a new herbivore while stoping
+				Random rand = new Random() ;
+				int newOne = rand.nextInt(100);
+				//TODO
+				//reduce plant life ?
+				if (newOne < birth) new HerbivoresAroundHerbivore(this) ;
+			}else if (eating == true && feeding == true) {
+				if (System.currentTimeMillis() < time + wait) {
+					this.speed = 0 ;
+					seeds += harvest ;
+					//reduce plant life ?
+					Random rand = new Random() ;
+					int newOne = rand.nextInt(100);
+					//TODO
+					if (newOne < birth) new HerbivoresAroundHerbivore(this) ;
+				}else{ //time's up
+					feeding = false ;
+					eating = false ;
+					feeded = true ;
+				}
+			}
+			
+			
+		}else{
 			//amount of life lost when hungry
 			life -= hungry ;
-			//TODO //par qui ?
-			if (this.life <= 0) {
-				//this.die;
-				return ; //faudra mettre le cas faux en dernier, pour simplifier les choses
-			}
 			//probability to plant a seed while traveling
 			if (seeds > 0) {
 				Random rand = new Random();
@@ -148,26 +215,19 @@ public class Herbivore extends AbstractCreature {
 					seeds -= 1 ;
 				}
 			}
-		}else{
-			//Happy Meal || Itadakimasu
-			//TODO là on bloque tout avec le while ... :s
-			time = System.currentTimeMillis() ;
-			
-			while (time + wait > System.currentTimeMillis() ) {
-				this.speed = 0 ;
-				seeds += harvest ;
-				Random rand = new Random() ;
-				int newOne = rand.nextInt(100);
-				//TODO
-				if (newOne < birth) new CreaturesAroundCreature(this) ;
+			if (this.life <= 0) {
+				//this.die();
 			}
-			
 		}
+	}
+
+	public double getLife() {
+		return life;
 	}
 
 	public Iterable<ICreature> creaturesAround(
 			Herbivore herbivore) {
-		return filter(environment.getCreatures(), new CreaturesAroundCreature(this));
+		return filter(environment.getCreatures(), new HerbivoresAroundHerbivore(this));
 	}
 	
 	@Override

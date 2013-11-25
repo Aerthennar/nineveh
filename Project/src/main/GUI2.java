@@ -7,23 +7,45 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.MaskFormatter;
 
 
 @SuppressWarnings("serial")
 public class GUI2 extends JPanel {
+        public JPanel paneConfig = new JPanel();
+        public JPanel paneStrategy = new JPanel();
+        public JPanel panePlant = new JPanel();
+        public JPanel paneHerbivore = new JPanel();
+        public JPanel paneAddPlant = new JPanel();
+        public JPanel paneSimulationResults = new JPanel();
+        
+        public JFormattedTextField plantNb = new JFormattedTextField(NumberFormat.getIntegerInstance());
+        public JSlider damageOverTimeRate = new JSlider();
+        public JSlider plantBirthRate = new JSlider();
+        
+        public JFormattedTextField herbivoreNb = new JFormattedTextField(NumberFormat.getIntegerInstance());
+        public JSlider herbivoreDamageOverTimeRate = new JSlider();
+        public JSlider herbivoreBirthRate = new JSlider();
+        public JSlider herbivoreSpeed = new JSlider(JSlider.HORIZONTAL, 0, 12, 6);
+        public JSlider herbivoreEscape = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
+        public JRadioButton buttonAddPlants = new JRadioButton("Add plant (with a click on the map)");
+        
+        public JSlider lifeRate = new JSlider();
+        public JTextArea textResults = new JTextArea();
         
         public GUI2(){
                 super();
-                JPanel paneConfig = new JPanel();
                 paneConfig.setLayout(new GridLayout(3,1));
                 paneConfig.add(paneStrategy()); // with plants parameters and herbivores parameters panes
                 paneConfig.add(paneAddPlant());
@@ -34,16 +56,12 @@ public class GUI2 extends JPanel {
         }
         
         public JPanel paneStrategy(){
-                JPanel paneStrategy = new JPanel();
                 paneStrategy.setLayout(new GridLayout(1, 2));
                 GridBagLayout plantGBL = new GridBagLayout();
                 GridBagLayout herbivoreGBL = new GridBagLayout();
                 
                 GridBagConstraints plantGBC = new GridBagConstraints();
                 GridBagConstraints herbivoreGBC = new GridBagConstraints();
-                
-                JPanel panePlant = new JPanel();
-                JPanel paneHerbivore = new JPanel();
                 
                 //Plant
                 panePlant.setBorder(BorderFactory.createMatteBorder(0,0,0,1,Color.BLACK));
@@ -71,8 +89,8 @@ public class GUI2 extends JPanel {
                 panePlant.add(strategyPlant, plantGBC);
                 
                 plantGBC.gridx++;
-                final JTextField plantNb = new JTextField();
                 plantNb.setColumns(5);
+
                 plantNb.setEnabled(false);
                 panePlant.add(plantNb, plantGBC);
                 
@@ -89,7 +107,6 @@ public class GUI2 extends JPanel {
             }
         });
                 
-                JSlider damageOverTimeRate = new JSlider();
                 plantGBC.gridx--;
                 plantGBC.gridy++;
                 damageOverTimeRate.setMajorTickSpacing(25);
@@ -98,7 +115,6 @@ public class GUI2 extends JPanel {
                 damageOverTimeRate.setPaintLabels(true);
                 panePlant.add(damageOverTimeRate, plantGBC);
                 
-                JSlider plantBirthRate = new JSlider();
                 plantGBC.gridy++;
                 plantBirthRate.setMajorTickSpacing(25);
                 plantBirthRate.setMinorTickSpacing(5);
@@ -130,11 +146,9 @@ public class GUI2 extends JPanel {
 
                 herbivoreGBC.gridx++;
                 herbivoreGBC.gridy = 1;
-                JTextField herbivoreNb = new JTextField();
                 herbivoreNb.setColumns(5);
                 paneHerbivore.add(herbivoreNb, herbivoreGBC);
 
-                JSlider herbivoreDamageOverTimeRate = new JSlider();
                 herbivoreGBC.gridy++;
                 herbivoreDamageOverTimeRate.setMajorTickSpacing(25);
                 herbivoreDamageOverTimeRate.setMinorTickSpacing(5);
@@ -142,7 +156,6 @@ public class GUI2 extends JPanel {
                 herbivoreDamageOverTimeRate.setPaintLabels(true);
                 paneHerbivore.add(herbivoreDamageOverTimeRate, herbivoreGBC);
                 
-                JSlider herbivoreBirthRate = new JSlider();
                 herbivoreGBC.gridy++;
                 herbivoreBirthRate.setMajorTickSpacing(25);
                 herbivoreBirthRate.setMinorTickSpacing(5);
@@ -150,7 +163,6 @@ public class GUI2 extends JPanel {
                 herbivoreBirthRate.setPaintLabels(true);
                 paneHerbivore.add(herbivoreBirthRate, herbivoreGBC);
 
-                JSlider herbivoreSpeed = new JSlider(JSlider.HORIZONTAL, 0, 12, 6);
                 herbivoreGBC.gridy++;
                 herbivoreSpeed.setMajorTickSpacing(2);
                 herbivoreSpeed.setMinorTickSpacing(1);
@@ -158,7 +170,6 @@ public class GUI2 extends JPanel {
                 herbivoreSpeed.setPaintLabels(true);
                 paneHerbivore.add(herbivoreSpeed, herbivoreGBC);
                 
-                JSlider herbivoreEscape = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
                 herbivoreGBC.gridy++;
                 herbivoreEscape.setMajorTickSpacing(25);
                 herbivoreEscape.setMinorTickSpacing(5);
@@ -172,7 +183,6 @@ public class GUI2 extends JPanel {
         }
         
         public JPanel paneAddPlant(){
-                JPanel paneAddPlant = new JPanel();
                 paneAddPlant.setLayout(new GridBagLayout());
                 GridBagConstraints addPlantGBC = new GridBagConstraints();
                 paneAddPlant.setBorder(BorderFactory.createMatteBorder(1,0,0,0,Color.BLACK));
@@ -186,7 +196,6 @@ public class GUI2 extends JPanel {
                 paneAddPlant.add(new JLabel("life rate"), addPlantGBC);
                 
                 addPlantGBC.gridx++;
-                JSlider lifeRate = new JSlider();
                 lifeRate.setMajorTickSpacing(25);
                 lifeRate.setMinorTickSpacing(5);
                 lifeRate.setPaintTicks(true);
@@ -195,20 +204,17 @@ public class GUI2 extends JPanel {
                 
                 addPlantGBC.gridy++;
                 addPlantGBC.insets = new Insets(12,-175,0,0);
-                JRadioButton buttonAddPlants = new JRadioButton("Add plant (with a click on the map)");
                 paneAddPlant.add(buttonAddPlants, addPlantGBC);
                 return paneAddPlant;
         }
         
         
         public JPanel paneSimulationResults(){
-                JPanel paneSimulationResults = new JPanel();
                 paneSimulationResults.setLayout(new GridBagLayout());
                 GridBagConstraints simulationResultsGBC = new GridBagConstraints();
                 paneSimulationResults.setBorder(BorderFactory.createMatteBorder(1,0,0,0,Color.BLACK));
                 
                 simulationResultsGBC.insets = new Insets(7,0,0,0);
-                JTextArea textResults = new JTextArea();
                 simulationResultsGBC.gridx = simulationResultsGBC.gridy = 0;
                 paneSimulationResults.add(new JLabel("Simulation results"), simulationResultsGBC);
                 
@@ -216,5 +222,16 @@ public class GUI2 extends JPanel {
                 textResults.setText("results");
                 paneSimulationResults.add(textResults, simulationResultsGBC);
                 return paneSimulationResults;
+        }
+        
+        protected MaskFormatter createFormatter(String s) {
+            MaskFormatter formatter = null;
+            try {
+                formatter = new MaskFormatter(s);
+            } catch (java.text.ParseException exc) {
+                System.err.println("formatter is bad: " + exc.getMessage());
+                System.exit(-1);
+            }
+            return formatter;
         }
 }

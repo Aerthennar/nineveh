@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +9,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -22,11 +24,12 @@ import javax.swing.JPanel;
 import plug.creatures.CreaturePluginFactory;
 import plug.creatures.PluginMenuItemBuilder;
 import creatures.ICreature;
+import creatures.IEnvironment;
+import creatures.Plant;
 import creatures.visual.ColorCube;
 import creatures.visual.CreatureInspector;
 import creatures.visual.CreatureSimulator;
 import creatures.visual.CreatureVisualizer;
-
 import main.GUI2;
 
 /**
@@ -47,7 +50,9 @@ public class Launcher extends JFrame {
         private JMenuBar mb = new JMenuBar();        
         private Constructor<? extends ICreature> currentConstructor = null;
         
-        JButton restart = new JButton("(Re-)start simulation");
+        public JButton restart = new JButton("(Re-)start simulation");
+        
+        ActionListener restartActionListener;
         
         public Launcher() {
                 factory = CreaturePluginFactory.getInstance();
@@ -73,10 +78,10 @@ public class Launcher extends JFrame {
                         }
                 });
                 buttons.add(reloader);
-
-                defaultStartSimulationButtonListener();
                 
                 buttons.add(restart);
+                
+                defaultStartSimulationButtonListener();
                 
                 add(buttons, BorderLayout.SOUTH);
                                 
@@ -86,7 +91,7 @@ public class Launcher extends JFrame {
                 visualizer = new CreatureVisualizer(simulator);
                 visualizer.setDebug(false);
                 visualizer.setPreferredSize(simulator.getSize());
-                
+                                
                 add(visualizer, BorderLayout.CENTER);
          buildPluginMenus();
 
@@ -113,27 +118,12 @@ public class Launcher extends JFrame {
                                 
                                 //TODO put the name of our plugin rather than "creatures.SmartCreature"
                                 if(currentConstructor.getName() == "creatures.Plant" || currentConstructor.getName() == "creatures.Herbivore"){
-                                        add(gui, BorderLayout.EAST);
-                                        restart.addActionListener(new ActionListener() {
-                                            public void actionPerformed(ActionEvent e) {
-                                                    if (currentConstructor != null) {
-                                                            synchronized(simulator) {
-                                                                    if (simulator.isRunning()) {
-                                                                            simulator.stop();
-                                                                    }
-                                                            }
-                                                            simulator.clearCreatures();
-                                                            
-                                                            Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
-                                                            
-                                                            simulator.addAllCreatures(creatures);
-                                                            simulator.start();
-                                                    }
-                                            }
-                                    	});
+                                	add(gui, BorderLayout.EAST);
+                                	
+                                	plantHerbiStartSimulationButtonListener();
                                 } else {
-                                        remove(gui);
-                                        defaultStartSimulationButtonListener();
+                                	remove(gui);
+                                	defaultStartSimulationButtonListener();
                                 }
                                 repaint();
                                 revalidate();
@@ -156,8 +146,13 @@ public class Launcher extends JFrame {
                 launcher.setVisible(true);
         }
         
+        /**
+         * 	remove the old actionListener
+         * 	and set up the default one
+         */
         private void defaultStartSimulationButtonListener(){
-        	restart.addActionListener(new ActionListener() {
+        	restart.removeActionListener(restartActionListener);
+        	restartActionListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                         if (currentConstructor != null) {
                                 synchronized(simulator) {
@@ -166,12 +161,40 @@ public class Launcher extends JFrame {
                                         }
                                 }
                                 simulator.clearCreatures();
+        						
                                 Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
                                 simulator.addAllCreatures(creatures);
                                 simulator.start();
                         }
                 }
-        	});
+        	};
+        	restart.addActionListener(restartActionListener);
+        }
+        
+        private void plantHerbiStartSimulationButtonListener(){
+        	restart.removeActionListener(restartActionListener);
+        	restartActionListener = new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (currentConstructor != null) {
+						synchronized(simulator) {
+							if (simulator.isRunning()) {
+								simulator.stop();
+							}
+						}
+						simulator.clearCreatures();
+						Constructor<? extends ICreature> plantConstructor = factory.getConstructorMap().get("creatures.Plant");
+						Constructor<? extends ICreature> herbivoreConstructor = factory.getConstructorMap().get("creatures.Herbivore");
+						String plantNumber = gui.plantNb.getText().toString();
+						String herbivoreNumber = gui.herbivoreNb.getText().toString();
+						Collection<? extends ICreature> plants = factory.createCreatures(simulator, Integer.parseInt(gui.plantNb.getText().toString()), new ColorCube(50),plantConstructor);
+						Collection<? extends ICreature> herbivores = factory.createCreatures(simulator, Integer.parseInt(gui.herbivoreNb.getText().toString()), new ColorCube(50), herbivoreConstructor);
+						simulator.addAllCreatures(plants);
+						simulator.addAllCreatures(herbivores);
+						simulator.start();
+					}
+				}
+        	};
+        	restart.addActionListener(restartActionListener);
         }
         
 }
