@@ -47,6 +47,8 @@ public class Launcher extends JFrame {
         private JMenuBar mb = new JMenuBar();        
         private Constructor<? extends ICreature> currentConstructor = null;
         
+        JButton restart = new JButton("(Re-)start simulation");
+        
         public Launcher() {
                 factory = CreaturePluginFactory.getInstance();
 
@@ -72,22 +74,8 @@ public class Launcher extends JFrame {
                 });
                 buttons.add(reloader);
 
-                JButton restart = new JButton("(Re-)start simulation");
-                restart.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                                if (currentConstructor != null) {
-                                        synchronized(simulator) {
-                                                if (simulator.isRunning()) {
-                                                        simulator.stop();
-                                                }
-                                        }
-                                        simulator.clearCreatures();
-                                        Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
-                                        simulator.addAllCreatures(creatures);
-                                        simulator.start();
-                                }
-                        }
-                });
+                defaultStartSimulationButtonListener();
+                
                 buttons.add(restart);
                 
                 add(buttons, BorderLayout.SOUTH);
@@ -126,8 +114,26 @@ public class Launcher extends JFrame {
                                 //TODO put the name of our plugin rather than "creatures.SmartCreature"
                                 if(currentConstructor.getName() == "creatures.Plant" || currentConstructor.getName() == "creatures.Herbivore"){
                                         add(gui, BorderLayout.EAST);
+                                        restart.addActionListener(new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                    if (currentConstructor != null) {
+                                                            synchronized(simulator) {
+                                                                    if (simulator.isRunning()) {
+                                                                            simulator.stop();
+                                                                    }
+                                                            }
+                                                            simulator.clearCreatures();
+                                                            
+                                                            Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
+                                                            
+                                                            simulator.addAllCreatures(creatures);
+                                                            simulator.start();
+                                                    }
+                                            }
+                                    	});
                                 } else {
                                         remove(gui);
+                                        defaultStartSimulationButtonListener();
                                 }
                                 repaint();
                                 revalidate();
@@ -148,6 +154,24 @@ public class Launcher extends JFrame {
                 CreaturePluginFactory.init(myMaxSpeed);
                 Launcher launcher = new Launcher();
                 launcher.setVisible(true);
+        }
+        
+        private void defaultStartSimulationButtonListener(){
+        	restart.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                        if (currentConstructor != null) {
+                                synchronized(simulator) {
+                                        if (simulator.isRunning()) {
+                                                simulator.stop();
+                                        }
+                                }
+                                simulator.clearCreatures();
+                                Collection<? extends ICreature> creatures = factory.createCreatures(simulator, 10, new ColorCube(50),currentConstructor);
+                                simulator.addAllCreatures(creatures);
+                                simulator.start();
+                        }
+                }
+        	});
         }
         
 }
