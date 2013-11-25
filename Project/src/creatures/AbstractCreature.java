@@ -45,17 +45,6 @@ public abstract class AbstractCreature implements ICreature {
 	/** Direction in radians (0,2*pi) */
 	protected double direction;
 	
-	/** State eating plant or not **/
-	protected boolean eating ;
-	
-	/** number max of neighbor allowed **/
-	protected int maxNeighbor ;
-	
-	/** number of seeds carried **/
-	protected int seeds ;
-	
-
-	
 //	/** area around creature where we check how many other creatures are present **/
 //	static protected double lifeZone ;
 
